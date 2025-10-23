@@ -1,34 +1,108 @@
-#include "lab.h"
-#include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h> /* for gettimeofday system call */
+#include "lab.h"
 
-char *get_greeting(const char *restrict name)
+/**
+ * @brief Standard insertion sort that is faster than merge sort for small array's
+ *
+ * @param A The array to sort
+ * @param p The starting index
+ * @param r The ending index
+ */
+static void insertion_sort(int A[], int p, int r)
 {
-  if (name == NULL)
-  {
-    return NULL;
-  }
+  int j;
 
-  // Allocate memory for the greeting message
-  int length = snprintf(NULL, 0, "Hello, %s!", name);
-  if (length < 0) // GCOVR_EXCL_START
-  {
-    return NULL; // snprintf failed
-  } // GCOVR_EXCL_STOP
-
-  //Casting is safe here because we know length is non-negative
-  size_t alloc_size = (size_t) length + 1; // +1 for the null terminator
-  char *greeting = malloc( alloc_size);
-
-
-  if (greeting == NULL) // GCOVR_EXCL_START
-  {
-    return NULL; // Memory allocation failed
-  }  // GCOVR_EXCL_STOP
+  for (j = p + 1; j <= r; j++)
+    {
+      int key = A[j];
+      int i = j - 1;
+      while ((i > p - 1) && (A[i] > key))
+        {
+	  A[i + 1] = A[i];
+	  i--;
+        }
+      A[i + 1] = key;
+    }
+}
 
 
-  // Create the greeting message
-  snprintf(greeting, alloc_size, "Hello, %s!", name);
+void mergesort_s(int A[], int p, int r)
+{
+  if (r - p + 1 <=  INSERTION_SORT_THRESHOLD)
+    {
+      insertion_sort(A, p, r);
+    }
+  else
+    {
+      int q = (p + r) / 2;
+      mergesort_s(A, p, q);
+      mergesort_s(A, q + 1, r);
+      merge_s(A, p, q, r);
+    }
 
-  return greeting;
+}
+
+void merge_s(int A[], int p, int q, int r)
+{
+  int *B = (int *)malloc(sizeof(int) * (r - p + 1));
+
+  int i = p;
+  int j = q + 1;
+  int k = 0;
+  int l;
+
+  /* as long as both lists have unexamined elements */
+  /*  this loop keeps executing. */
+  while ((i <= q) && (j <= r))
+    {
+      if (A[i] < A[j])
+        {
+	  B[k] = A[i];
+	  i++;
+        }
+      else
+        {
+	  B[k] = A[j];
+	  j++;
+        }
+      k++;
+    }
+
+  /* now only at most one list has unprocessed elements. */
+  if (i <= q)
+    {
+      /* copy remaining elements from the first list */
+      for (l = i; l <= q; l++)
+        {
+	  B[k] = A[l];
+	  k++;
+        }
+    }
+  else
+    {
+      /* copy remaining elements from the second list */
+      for (l = j; l <= r; l++)
+        {
+	  B[k] = A[l];
+	  k++;
+        }
+    }
+
+  /* copy merged output from array B back to array A */
+  k = 0;
+  for (l = p; l <= r; l++)
+    {
+      A[l] = B[k];
+      k++;
+    }
+
+  free(B);
+}
+
+double getMilliSeconds()
+{
+  struct timeval now;
+  gettimeofday(&now, (struct timezone *)0);
+  return (double)now.tv_sec * 1000.0 + now.tv_usec / 1000.0;
 }

@@ -1,8 +1,8 @@
-# Project X
+# Project 3 - Multithreaded Sorting Application
 
-- Name: John Doe
-- Email: johndoe@u.boisestate.edu
-- Class: 452-001
+- Name: Benjamin Blodgett
+- Email: benjaminblodgett311@u.boisestate.edu
+- Class: 452-002
 
 ## Known Bugs or Issues
 
@@ -14,8 +14,7 @@ TODO: Describe your experience with the project (struggles, breakthroughs, etc.)
 
 ## Analysis
 
-TODO: Provide your analysis of the results. If the assignment does not require
-analysis, you can remove this section.
+TODO: Provide your analysis of the results. If the assignment does not require analysis, you can remove this section.
 
 Here is an example of how to include a plot in your README:
 

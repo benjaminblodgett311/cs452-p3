@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <sys/time.h> /* for gettimeofday system call */
+#include <plibsys.h>
 #include "lab.h"
 
 /**
@@ -106,3 +107,67 @@ double getMilliSeconds()
   gettimeofday(&now, (struct timezone *)0);
   return (double)now.tv_sec * 1000.0 + now.tv_usec / 1000.0;
 }
+
+
+/**
+ * Breaks array into num_thread blocks and sorts each block with a thread.
+ * AI Use: Assisted By AI
+ */
+void mergesort_mt(int *A, int n, int num_thread)
+{
+  const int block_offset = n / num_thread;
+  parallel_args args[num_thread];
+  pthread_t threads[num_thread];
+
+  for (int i = 0; i < num_thread; i++)
+  {
+    args[i].A = A;
+    args[i].start = i * block_offset;
+    args[i].end = (i + 1) * block_offset;
+    if (i == num_thread - 1)
+      args[num_thread - 1].end += n % block_offset;
+
+    if (pthread_create(&threads[i], NULL, parallel_mergesort, &args[i]))
+      perror("pthread_create");
+  }
+
+  for (int i = 0; i < num_thread; i++)
+    pthread_join(threads[i], NULL);
+
+  if (num_thread < 2)
+    return;
+
+  int runs = num_thread;
+  while (runs > 1) {
+      int next = 0;
+      for (int i = 0; i + 1 < runs; i += 2) {
+          int p = args[i].start;
+          int q = args[i].end - 1;
+          int r = args[i + 1].end - 1;
+
+          merge_s(A, p, q, r);
+
+          args[next].start = p;
+          args[next].end = r + 1;
+          next++;
+      }
+
+      if (runs % 2 == 1) {
+          args[next++] = args[runs - 1];
+      }
+
+      runs = next;
+  }
+}
+
+/**
+ * Calls mergesort_s with given void* args
+ * AI Use: Written By AI
+ */
+void *parallel_mergesort(void *args)
+{
+  parallel_args *arg = (parallel_args *)args;
+  mergesort_s(arg->A, arg->start, arg->end - 1);
+  return NULL;
+}
+

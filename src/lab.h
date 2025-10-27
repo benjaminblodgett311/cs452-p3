@@ -53,13 +53,13 @@ extern "C"
    * @brief Represents a chunk of the array to be sorted by a thread
    *
    */
-  struct parallel_args
+  typedef struct parallel_args
   {
     int *A;
     int start;
     int end;
     pthread_t tid;
-  };
+  } parallel_args;
 
   /**
    * @brief The function that is called by each thread to sort their chunk

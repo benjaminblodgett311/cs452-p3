@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <sys/time.h> /* for gettimeofday system call */
-#include <plibsys.h>
 #include "lab.h"
+#include "stdio.h"
 
 /**
  * @brief Standard insertion sort that is faster than merge sort for small array's
@@ -128,7 +128,10 @@ void mergesort_mt(int *A, int n, int num_thread)
       args[num_thread - 1].end += n % block_offset;
 
     if (pthread_create(&threads[i], NULL, parallel_mergesort, &args[i]))
-      perror("pthread_create");
+    {
+      fprintf(stderr, "ERROR: pthread_create");
+      exit(EXIT_FAILURE);
+    }
   }
 
   for (int i = 0; i < num_thread; i++)
